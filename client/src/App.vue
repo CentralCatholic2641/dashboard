@@ -115,12 +115,7 @@
           </v-list-item-content>
         </v-list-item>
 
-        <v-list-item
-          v-if="$root.user.role > 2"
-          link
-          to="/meetings"
-          color="primary"
-        >
+        <v-list-item link to="/meetings" color="primary">
           <v-list-item-icon>
             <v-icon>mdi-calendar</v-icon>
           </v-list-item-icon>

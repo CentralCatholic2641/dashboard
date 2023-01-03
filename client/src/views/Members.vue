@@ -342,6 +342,11 @@ export default {
       };
     this.filter = this.$root.user.pagestate.members.filter;
     this.columns = this.$root.user.pagestate.members.columns;
+
+    for (let i of Object.keys(this.columnMap)) {
+      if (!Object.keys(this.$root.user.pagestate.members).includes(i))
+        this.$root.user.pagestate.members[i] = false;
+    }
   },
   components: {
     NewUserWizard,

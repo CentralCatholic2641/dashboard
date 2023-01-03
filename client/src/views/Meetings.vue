@@ -14,7 +14,7 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn color="primary" @click="create = true"
+      <v-btn v-if="$root.user.role > 2" color="primary" @click="create = true"
         ><v-icon left>mdi-plus</v-icon>New</v-btn
       >
     </v-toolbar>
@@ -25,8 +25,13 @@
       }); overflow: auto`"
     >
       <v-container style="max-width: 1185px" class="px-8 pt-0 mt-4">
-        <v-card class="mt-6" v-if="meetings.length != 0">
-          <v-simple-table class="transparent" dense style="white-space: nowrap">
+        <v-card class="mt-6">
+          <v-simple-table
+            class="transparent"
+            v-if="meetings.length != 0"
+            dense
+            style="white-space: nowrap"
+          >
             <template v-slot:default>
               <thead>
                 <tr>
@@ -37,7 +42,7 @@
                   <th class="text-left">Hours</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody v-if="$root.user.role > 2">
                 <tr
                   v-ripple
                   style="cursor: pointer"
@@ -64,13 +69,36 @@
                   </td>
                 </tr>
               </tbody>
+
+              <tbody v-else>
+                <tr
+                  v-for="meeting in meetings"
+                  :key="meeting._id"
+                  :class="{
+                    'grey--text font-italic': hasNotHappened(meeting._id),
+                  }"
+                >
+                  <td class="font-weight-black">{{ meeting.name }}</td>
+                  <td>
+                    {{ dayjs(meeting.date).format("ddd, MMM D, YYYY") }}
+                  </td>
+                  <td>{{ meeting.start }}</td>
+                  <td>{{ meeting.end }}</td>
+                  <td>
+                    {{ meeting.bonus ? "+" : ""
+                    }}{{
+                      dayjs(`${meeting.date}T${meeting.end}`)
+                        .diff(`${meeting.date}T${meeting.start}`, "hour", true)
+                        .toFixed(2)
+                    }}
+                  </td>
+                </tr>
+              </tbody>
             </template>
           </v-simple-table>
-        </v-card>
 
-        <p class="font-italic grey--text text-center mt-12" v-else>
-          No meetings
-        </p>
+          <p v-else class="grey--text font-italic my-5">No meetings</p>
+        </v-card>
 
         <p v-if="meetings.length > 0" class="pb-0 mt-4 mb-1 grey--text">
           {{ meetings.length }} meetings
@@ -115,13 +143,11 @@ export default {
   },
   methods: {
     refresh() {
-      if (this.$root.user.role > 2) {
-        this.$root.loading = true;
-        this.$http.get("/api/meeting").then((response) => {
-          this.meetings = response.data;
-          this.$root.loading = false;
-        });
-      } else this.$router.replace("/");
+      this.$root.loading = true;
+      this.$http.get("/api/meeting").then((response) => {
+        this.meetings = response.data;
+        this.$root.loading = false;
+      });
     },
     hasNotHappened(meeting) {
       const data = this.meetings.find((i) => i._id == meeting);
