@@ -10,6 +10,7 @@ import * as packagejson from "./package.json" assert { type: "json" };
 
 import { getUserData } from "./middleware/authentication.js";
 import Config from "./models/Config.model.js";
+import Scouting from "./models/Scouting.model.js";
 
 import indexRouter from "./routers/index.router.js";
 import eventRouter from "./routers/event.router.js";
@@ -22,11 +23,12 @@ import calendarRouter from "./routers/calendar.router.js";
 import paymentRouter from "./routers/payment.router.js";
 import taskRouter from "./routers/task.router.js";
 import resourceRouter from "./routers/resource.router.js";
+import axios from "axios";
 
 const app = express();
 
 dotenv.config();
-app.use(express.json({ limit: "15mb" }));
+app.use(express.json({ limit: "30mb" }));
 app.use(cookieParser());
 app.use(history());
 app.use(cors());
@@ -78,6 +80,21 @@ socket.on("connect", async () => {
 socket.on("status", async (status) => {
 	console.log(status);
 	await Config.findOneAndUpdate({}, { $set: { status } });
+});
+
+socket.on("sync", async () => {
+	const config = await Config.findOne({});
+	const all = await Scouting.find({}, "event");
+	let comps = [];
+
+	for (let i of all) {
+		if (!comps.includes(i.event)) comps.push(i.event);
+	}
+
+	for (let i of comps) {
+		const compData = await Scouting.find({ event: i });
+		await axios.post(`http://192.168.1.40:3000/api/instance/${config.code}/sync`, compData);
+	}
 });
 
 app.listen(3000);

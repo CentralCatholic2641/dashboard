@@ -20,7 +20,7 @@ router.get("/match/:match", async (req, res) => {
 
 	for (let i of raw) {
 		data[i.team] = { ...JSON.parse(JSON.stringify(i)) };
-		data[i.team].scouter = schedule.matches[req.params.match];
+		data[i.team].scouter = schedule ? schedule.matches[req.params.match] : "";
 	}
 
 	res.json(data);
@@ -78,20 +78,39 @@ router.delete("/pit/:event", async (req, res) => {
 });
 
 router.post("/match", async (req, res) => {
-	if (await Scouting.exists({ type: "match", match: req.body.match })) {
+	if (await Scouting.exists({ type: "match", match: req.body.match, team: req.body.team })) {
 		delete req.body._id;
 		await Scouting.findOneAndReplace({ match: req.body.match }, req.body);
 	} else {
 		await Scouting.create(req.body);
 	}
 	let scouting = await ScoutingSchedule.findOne({ event: req.body.event });
-	let match = scouting.matches[req.body.match];
-	match[req.query.station] = {
-		assigned: req.user.username,
-		assignedName: req.user.shortname || req.user.name,
-		submitted: true,
-	};
-	await ScoutingSchedule.findOneAndUpdate({ event: req.body.event }, { matches: scouting.matches });
+	if (scouting) {
+		let match = scouting.matches[req.body.match];
+		match[req.query.station] = {
+			assigned: req.user.username,
+			assignedName: req.user.shortname || req.user.name,
+			submitted: true,
+		};
+		await ScoutingSchedule.findOneAndUpdate({ event: req.body.event }, { matches: scouting.matches });
+	} else {
+		scouting = {
+			matches: {
+				[req.body.match]: {
+					[req.query.station]: {
+						assigned: req.user.username,
+						assignedName: req.user.shortname || req.user.name,
+						submitted: true,
+					},
+				},
+			},
+		};
+		await ScoutingSchedule.create({
+			event: req.body.event,
+			pitscouting: {},
+			matches: scouting.matches,
+		});
+	}
 	res.end();
 });
 
@@ -109,13 +128,30 @@ router.post("/pit", async (req, res) => {
 		await Scouting.create(req.body);
 	}
 	let scouting = await ScoutingSchedule.findOne({ event: req.body.event });
-	scouting.pitscouting[`frc${req.body.team}`] = {
-		assigned: req.user.username,
-		assignedName: req.user.name,
-		submitted: true,
-	};
-	scouting.markModified("pitscouting");
-	await ScoutingSchedule.findOneAndUpdate({ event: req.body.event }, { pitscouting: scouting.pitscouting });
+	if (scouting) {
+		scouting.pitscouting[`frc${req.body.team}`] = {
+			assigned: req.user.username,
+			assignedName: req.user.name,
+			submitted: true,
+		};
+		scouting.markModified("pitscouting");
+		await ScoutingSchedule.findOneAndUpdate({ event: req.body.event }, { pitscouting: scouting.pitscouting });
+	} else {
+		scouting = {
+			pitscouting: {
+				[`frc${req.body.team}`]: {
+					assigned: req.user.username,
+					assignedName: req.user.name,
+					submitted: true,
+				},
+			},
+		};
+		await ScoutingSchedule.create({
+			event: req.body.event,
+			pitscouting: scouting.pitscouting,
+			scouting: {},
+		});
+	}
 	res.end();
 });
 
