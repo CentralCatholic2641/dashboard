@@ -1,0 +1,16 @@
+version: "3"
+services:
+  app:
+    container_name: tms-${TEAM}
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT}:3000"
+    links:
+      - mongo
+  mongo:
+    container_name: tms-${TEAM}-mongo
+    restart: always
+    image: mongo:5
