@@ -5,8 +5,11 @@ import compression from "compression";
 import history from "connect-history-api-fallback";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import io from "socket.io-client";
+import * as packagejson from "./package.json" assert { type: "json" };
 
 import { getUserData } from "./middleware/authentication.js";
+import Config from "./models/Config.model.js";
 
 import indexRouter from "./routers/index.router.js";
 import eventRouter from "./routers/event.router.js";
@@ -58,5 +61,23 @@ mongoose
 	.catch((error) => console.error(error));
 mongoose.promise = global.Promise;
 mongoose.set("returnOriginal", false);
+
+let socket = io("http://192.168.1.40:3000");
+
+socket.on("connect", async () => {
+	let config = await Config.findOne({});
+	config.version = packagejson.default.version;
+	await config.save();
+	setTimeout(() => {
+		if (config) {
+			socket.emit("activate", config);
+		}
+	}, 500);
+});
+
+socket.on("status", async (status) => {
+	console.log(status);
+	await Config.findOneAndUpdate({}, { $set: { status } });
+});
 
 app.listen(3000);

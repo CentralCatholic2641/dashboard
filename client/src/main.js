@@ -3,6 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import vuetify from "./plugins/vuetify";
 import axios from "axios";
+const version = require("../package.json").version;
 
 Vue.config.productionTip = false;
 Vue.prototype.$http = axios;
@@ -41,6 +42,7 @@ new Vue({
 			authenticated: false,
 			tasks: [],
 			title: "",
+			version,
 		};
 	},
 	methods: {

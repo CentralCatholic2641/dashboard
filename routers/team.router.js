@@ -1,7 +1,7 @@
 import { Router } from "express";
-import Config from "../models/Config.model.js";
 import Cache from "../models/Cache.model.js";
 import { requireAuth } from "../middleware/authentication.js";
+import dayjs from "dayjs";
 
 // const root = `https://frc-api.firstinspires.org/v3.0`;
 const tbaroot = `https://www.thebluealliance.com/api/v3`;
@@ -20,6 +20,8 @@ router.get("/:team", async (req, res) => {
 		events: await Cache.getData(`${tbaroot}/team/${req.params.team}/events/${req.query.season}`),
 		statuses: await Cache.getData(`${tbaroot}/team/${req.params.team}/events/${req.query.season}/statuses`),
 	};
+
+	data.events.sort((a, b) => dayjs(a.start_date) - dayjs(b.start_date));
 
 	res.json(data);
 });

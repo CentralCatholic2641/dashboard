@@ -165,7 +165,7 @@
                 <v-list-item-title>Edit Meeting</v-list-item-title>
               </v-list-item>
 
-              <v-list-item @click="deleteMeeting()" class="red--text">
+              <v-list-item @click="confirm_delete = true" class="red--text">
                 <v-list-item-icon
                   ><v-icon left class="red--text"
                     >mdi-delete</v-icon
@@ -191,6 +191,33 @@
     >
       <MeetingEditor :meeting="meeting" @close="(edit = false), refresh()" />
     </v-dialog>
+
+    <v-dialog v-model="confirm_delete" max-width="400" persistent>
+      <v-card style="border: 3px #f44336 solid; background: #212121 !important">
+        <v-card-title>
+          <h4
+            class="text-h4 font-weight-black mt-1"
+            v-if="$vuetify.breakpoint.mdAndUp"
+          >
+            CONFIRM
+          </h4>
+          <h5 class="text-h5 font-weight-black mt-1" v-else>CONFIRM</h5>
+        </v-card-title>
+
+        <v-card-text>
+          Are you sure you want to delete this meeting? This action is
+          irreversible.
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="green" text @click="confirm_delete = false"
+            >Cancel</v-btn
+          >
+          <v-spacer></v-spacer>
+          <v-btn color="red" text @click="deleteMeeting()">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -208,6 +235,7 @@ export default {
       users: [],
       changes: false,
       attendance_hover: false,
+      confirm_delete: false,
     };
   },
   computed: {

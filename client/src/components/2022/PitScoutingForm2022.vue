@@ -444,7 +444,7 @@ export default {
             });
         };
         reader.onerror = (error) => {
-          console.log("Error: ", error);
+          console.error("Error: ", error);
         };
       } else {
         this.$http

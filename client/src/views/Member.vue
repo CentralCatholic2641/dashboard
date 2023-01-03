@@ -234,8 +234,6 @@
           </v-col>
 
           <v-col cols="12" md="4">
-            <v-img :src="`/api/content/members/${member.username}.jpg`"></v-img>
-
             <section v-if="$root.user.role > 2">
               <h5 class="text-h5 mt-3">Actions</h5>
 

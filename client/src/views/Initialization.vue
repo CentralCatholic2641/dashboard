@@ -734,6 +734,8 @@ export default {
               pitMode: this.$root.config.pitMode,
               tbatoken: this.tbatoken,
               frctoken: btoa(`${this.frcusername}:${this.frctoken}`),
+              code: this.code,
+              version: this.$root.version,
             })
             .then((response2) => {
               if (response2.data.initialized)

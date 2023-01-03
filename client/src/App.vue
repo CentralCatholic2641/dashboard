@@ -3,7 +3,12 @@
     <v-app-bar app color="secondary">
       <v-app-bar-nav-icon
         class="mr-3"
-        v-if="$root.user && !$root.disableDrawer && $root.authenticated"
+        v-if="
+          $root.user &&
+          !$root.disableDrawer &&
+          $root.authenticated &&
+          $root.config.status == 'Active'
+        "
         @click="$root.drawer = !$root.drawer"
       ></v-app-bar-nav-icon>
       <div
@@ -47,7 +52,11 @@
       </h4>
     </v-app-bar>
 
-    <v-navigation-drawer app v-model="$root.drawer" v-if="$root.user">
+    <v-navigation-drawer
+      app
+      v-model="$root.drawer"
+      v-if="$root.user && $root.config.status == 'Active'"
+    >
       <v-toolbar color="#181818">
         <v-toolbar-title>
           <v-list-item class="ma-0 pa-0">
@@ -490,7 +499,7 @@
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <p class="my-0 ml-3 pa-0 grey--text overline">v{{ version }}</p>
+        <p class="my-0 ml-3 pa-0 grey--text overline">v{{ $root.version }}</p>
       </template>
     </v-navigation-drawer>
 
@@ -499,166 +508,174 @@
         $vuetify.breakpoint.mdAndUp ? '64px' : '56px'
       }); overflow: auto`"
     >
-      <main v-if="$root.config.initialized">
-        <v-container
-          class="px-0"
-          style="max-width: 400px"
-          v-if="$root.user != false && $root.user.locked"
-        >
-          <v-card class="mt-12">
-            <v-card-title class="mb-2 pb-0"
-              ><h5 class="text-h5">Account Locked</h5></v-card-title
-            >
-
-            <v-card-text>
-              <p class="ma-0 pa-0">
-                Please contact your administrator for more information
-              </p>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-btn @click="logout()" color="grey" text
-                ><v-icon left>mdi-arrow-left </v-icon>Log out</v-btn
-              >
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-container>
-
-        <v-container
-          class="px-0 text-center"
-          style="max-width: 400px"
-          v-else-if="$root.user != false && $root.user.resetPasswordOnNextLogin"
-        >
-          <v-card class="mt-12">
-            <v-card-title class="mb-2 pb-0"
-              ><h5 class="text-h5">Reset Password</h5></v-card-title
-            >
-
-            <v-card-text>
-              <v-text-field
-                class="mb-4"
-                hide-details
-                v-model="new_password"
-                label="New Password"
-                type="password"
-              ></v-text-field>
-              <v-text-field
-                hide-details
-                v-model="new_password_confirm"
-                label="Confirm New Password"
-                type="password"
-                @keypress.enter="resetPassword()"
-              ></v-text-field>
-            </v-card-text>
-
-            <v-card-actions>
-              <v-btn @click="logout()" color="grey" text
-                ><v-icon left>mdi-arrow-left </v-icon>Log out</v-btn
-              >
-              <v-spacer></v-spacer>
-              <v-btn
-                :disabled="new_password != new_password_confirm"
-                @click="resetPassword()"
-                color="primary"
-                >Continue<v-icon right>mdi-arrow-right</v-icon></v-btn
-              >
-            </v-card-actions>
-          </v-card>
-        </v-container>
-
-        <router-view v-else-if="$root.user != false && $root.authenticated" />
-
-        <v-overlay
-          :value="$root.loading && $root.user"
-          class="text-center"
-          style="z-index: 100"
-        >
-          <v-progress-circular
-            :size="50"
-            :width="4"
-            indeterminate
-            class="mb-4 mt-n12"
-          ></v-progress-circular>
-          <p>Loading...</p>
-        </v-overlay>
-
-        <v-row no-gutters v-if="!$root.user">
-          <v-col cols="12" md="6">
-            <v-img
-              class="pa-0 ma-0 elevation-24"
-              :max-height="
-                $vuetify.breakpoint.mdAndUp ? 'calc(100vh - 64px)' : '200px'
-              "
-              src="@/assets/login.jpg"
-              :position="
-                $vuetify.breakpoint.mdAndUp
-                  ? 'center center'
-                  : 'center bottom -75px'
-              "
-            ></v-img>
-          </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-            :style="
-              $vuetify.breakpoint.mdAndUp
-                ? 'padding: 75px 125px 25px 125px'
-                : 'padding: 24px'
-            "
-            style="max-width: 750px"
+      <div v-if="$root.config.status == 'Active'">
+        <main v-if="$root.config.initialized">
+          <v-container
+            class="px-0"
+            style="max-width: 400px"
+            v-if="$root.user != false && $root.user.locked"
           >
-            <h2 class="text-h2 mb-5">Login</h2>
-            <p class="grey--text mb-6">
-              Enter your FRC Team Management System here.
-            </p>
-
-            <v-divider></v-divider>
-
-            <v-text-field
-              class="mt-6"
-              label="Username"
-              v-model="user.username"
-              hide-details="auto"
-              autocomplete="off"
-              :error-messages="error.username"
-            ></v-text-field>
-            <v-text-field
-              class="mt-4 pb-2"
-              label="Password"
-              v-model="user.password"
-              type="password"
-              hide-details="auto"
-              autocomplete="off"
-              :error-messages="error.password"
-              @keypress.enter="login()"
-            ></v-text-field>
-            <v-checkbox
-              label="Stay signed in?"
-              v-model="user.sticky"
-            ></v-checkbox>
-            <div class="d-flex">
-              <!-- <v-btn
-              large
-              outlined
-              color="grey"
-              class="mt-1"
-              href="https://sponsor.frc2641.aidanliddy.com"
-              >I'm a Sponsor</v-btn
-            > -->
-              <v-spacer></v-spacer>
-              <v-btn large color="primary" class="mt-1" @click="login()"
-                >Go<v-icon right>mdi-arrow-right</v-icon></v-btn
+            <v-card class="mt-12">
+              <v-card-title class="mb-2 pb-0"
+                ><h5 class="text-h5">Account Locked</h5></v-card-title
               >
-            </div>
-          </v-col>
-        </v-row>
-      </main>
 
-      <main v-else>
-        <Initialization />
-      </main>
+              <v-card-text>
+                <p class="ma-0 pa-0">
+                  Please contact your administrator for more information
+                </p>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn @click="logout()" color="grey" text
+                  ><v-icon left>mdi-arrow-left </v-icon>Log out</v-btn
+                >
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-container>
+
+          <v-container
+            class="px-0 text-center"
+            style="max-width: 400px"
+            v-else-if="
+              $root.user != false && $root.user.resetPasswordOnNextLogin
+            "
+          >
+            <v-card class="mt-12">
+              <v-card-title class="mb-2 pb-0"
+                ><h5 class="text-h5">Reset Password</h5></v-card-title
+              >
+
+              <v-card-text>
+                <v-text-field
+                  class="mb-4"
+                  hide-details
+                  v-model="new_password"
+                  label="New Password"
+                  type="password"
+                ></v-text-field>
+                <v-text-field
+                  hide-details
+                  v-model="new_password_confirm"
+                  label="Confirm New Password"
+                  type="password"
+                  @keypress.enter="resetPassword()"
+                ></v-text-field>
+              </v-card-text>
+
+              <v-card-actions>
+                <v-btn @click="logout()" color="grey" text
+                  ><v-icon left>mdi-arrow-left </v-icon>Log out</v-btn
+                >
+                <v-spacer></v-spacer>
+                <v-btn
+                  :disabled="new_password != new_password_confirm"
+                  @click="resetPassword()"
+                  color="primary"
+                  >Continue<v-icon right>mdi-arrow-right</v-icon></v-btn
+                >
+              </v-card-actions>
+            </v-card>
+          </v-container>
+
+          <router-view v-else-if="$root.user != false && $root.authenticated" />
+
+          <v-overlay
+            :value="$root.loading && $root.user"
+            class="text-center"
+            style="z-index: 100"
+          >
+            <v-progress-circular
+              :size="50"
+              :width="4"
+              indeterminate
+              class="mb-4 mt-n12"
+            ></v-progress-circular>
+            <p>Loading...</p>
+          </v-overlay>
+
+          <v-row no-gutters v-if="!$root.user">
+            <v-col cols="12" md="6">
+              <v-img
+                class="pa-0 ma-0 elevation-24"
+                :max-height="
+                  $vuetify.breakpoint.mdAndUp ? 'calc(100vh - 64px)' : '200px'
+                "
+                src="@/assets/login.jpg"
+                :position="
+                  $vuetify.breakpoint.mdAndUp
+                    ? 'center center'
+                    : 'center bottom -75px'
+                "
+              ></v-img>
+            </v-col>
+
+            <v-col
+              cols="12"
+              md="6"
+              :style="
+                $vuetify.breakpoint.mdAndUp
+                  ? 'padding: 75px 125px 25px 125px'
+                  : 'padding: 24px'
+              "
+              style="max-width: 750px"
+            >
+              <h2 class="text-h2 mb-5">Login</h2>
+              <p class="grey--text mb-6">
+                Enter your FRC Team Management System here.
+              </p>
+
+              <v-divider></v-divider>
+
+              <v-text-field
+                class="mt-6"
+                label="Username"
+                v-model="user.username"
+                hide-details="auto"
+                autocomplete="off"
+                :error-messages="error.username"
+              ></v-text-field>
+              <v-text-field
+                class="mt-4 pb-2"
+                label="Password"
+                v-model="user.password"
+                type="password"
+                hide-details="auto"
+                autocomplete="off"
+                :error-messages="error.password"
+                @keypress.enter="login()"
+              ></v-text-field>
+              <v-checkbox
+                label="Stay signed in?"
+                v-model="user.sticky"
+              ></v-checkbox>
+              <div class="d-flex">
+                <v-spacer></v-spacer>
+                <v-btn large color="primary" class="mt-1" @click="login()"
+                  >Go<v-icon right>mdi-arrow-right</v-icon></v-btn
+                >
+              </div>
+            </v-col>
+          </v-row>
+        </main>
+
+        <main v-else>
+          <Initialization />
+        </main>
+      </div>
+
+      <div v-else style="max-width: 500px" class="ma-auto mt-12 text-center">
+        <v-icon size="100" color="red">mdi-alert</v-icon>
+        <h2 class="text-h2 font-weight-light red--text mt-10">NOTICE</h2>
+        <p class="mt-10">This instance has been disabled.</p>
+        <p class="mt-4">
+          Please contact support at
+          <a class="blue--text" href="mailto:support@team2641.com"
+            >support@team2641.com</a
+          >.
+        </p>
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -667,7 +684,6 @@
 import dayjs from "dayjs";
 import Initialization from "./views/Initialization.vue";
 
-const version = require("../package.json").version;
 let timeInterval;
 
 export default {
@@ -680,11 +696,9 @@ export default {
         password: "",
       },
       time: "",
-      version,
       href: window.location.href,
       new_password: "",
       new_password_confirm: "",
-      // value: "",
       dayjs,
     };
   },

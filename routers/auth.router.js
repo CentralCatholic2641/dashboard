@@ -70,7 +70,6 @@ router.get("/logout", (req, res) => {
 });
 
 router.post("/create", requireAuth(false), async (req, res) => {
-	console.log(await User.findOne({ username: req.body.username }));
 	if (await User.findOne({ username: req.body.username })) {
 		res.json({ error: { username: "Username already exists" } });
 	} else {

@@ -11,6 +11,9 @@ const ConfigSchema = new mongoose.Schema(
 		pitMode: String,
 		tbatoken: String,
 		frctoken: String,
+		code: String,
+		status: String,
+		version: String,
 	},
 	{ collection: "config", timestamps: true }
 );

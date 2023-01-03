@@ -255,7 +255,6 @@ export default {
           let data = {};
 
           for (let team of this.teams) {
-            console.log(team);
             let scout = this.pitscouting[team.key];
             if (scout) {
               if (scout.assigned.length != 0) {

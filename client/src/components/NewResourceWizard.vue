@@ -149,7 +149,7 @@ export default {
         this.data.file = reader.result;
       };
       reader.onerror = (error) => {
-        console.log("Error: ", error);
+        console.error("Error: ", error);
       };
     },
   },
