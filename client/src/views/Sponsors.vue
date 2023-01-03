@@ -148,8 +148,22 @@
           No sponsors
         </p>
 
-        <p v-if="sponsors.length > 0" class="pb-0 mt-4 mb-1 grey--text">
-          {{ sponsors.length }} sponsors
+        <p
+          v-if="
+            $root.user.role > 2
+              ? sponsors.length > 0
+              : sponsors.filter((i) => i.sponsor.member == $root.user._id)
+                  .length > 0
+          "
+          class="pb-0 mt-4 mb-1 grey--text"
+        >
+          {{
+            $root.user.role > 2
+              ? sponsors.length
+              : sponsors.filter((i) => i.sponsor.member == $root.user._id)
+                  .length
+          }}
+          sponsors
         </p>
 
         <v-dialog
