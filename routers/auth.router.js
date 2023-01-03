@@ -41,7 +41,7 @@ router.post("/login", async (req, res) => {
 			} else {
 				if (user.role != 100) {
 					const token = createToken(user._id);
-					const tasks = await Task.find({ assigned: user._id, status: "In Progress" }, "title due subteam");
+					const tasks = await Task.find({ assigned: user._id, $or: [{ status: "In Progress" }, { status: "Under Review" }] }, "title due subteam");
 					if (req.body.sticky) {
 						res.cookie("jwt", token, {
 							maxAge: maxAge * 1000,
@@ -150,7 +150,7 @@ router.get("/verify", async (req, res) => {
 						}
 					} else {
 						if (user.role != 100) {
-							const tasks = await Task.find({ assigned: user._id, status: "In Progress" }, "title due subteam");
+							const tasks = await Task.find({ assigned: user._id, $or: [{ status: "In Progress" }, { status: "Under Review" }] }, "title due subteam");
 							res.json({
 								valid: true,
 								user,

@@ -52,27 +52,6 @@ router.get("/current", async (req, res) => {
 	res.send(current);
 });
 
-router.get("/toggle", async (req, res) => {
-	if (req.user.role > 2) {
-		const user = await User.findOne({ card: req.query.card });
-		var meeting = JSON.parse(JSON.stringify(await Meeting.findById(req.query.meeting)));
-		delete meeting._id;
-		if (user) {
-			if (meeting.attendance) {
-				meeting.attendance[user._id] = true;
-			} else {
-				meeting.attendance = {};
-				meeting.attendance[user._id] = true;
-			}
-
-			await Meeting.findOneAndReplace({ _id: req.query.meeting }, meeting);
-			res.json({ user, meeting });
-		} else {
-			res.json({ error: "Invalid card" });
-		}
-	} else res.sendStatus(403);
-});
-
 router.get("/leaderboard", async (req, res) => {
 	let users = await User.find({ includeInAttendance: true }, "name includeInAttendance type");
 	let meetings = await Meeting.find();

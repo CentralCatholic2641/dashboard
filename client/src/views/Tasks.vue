@@ -583,7 +583,7 @@
                       v-for="(item, index) in current.checklist"
                       :key="item._id"
                       :class="{
-                        'grey--text font-italic': item.completed,
+                        'grey--text font-italic text--darken-1': item.completed,
                       }"
                     >
                       <td
@@ -598,7 +598,7 @@
                       >
                         <v-icon
                           :class="{
-                            'grey--text': item.completed,
+                            'grey--text text--darken-2': item.completed,
                           }"
                           >{{
                             item.completed
