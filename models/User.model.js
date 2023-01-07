@@ -33,7 +33,6 @@ const UserSchema = new mongoose.Schema(
 		subteam: String,
 		position: String,
 		notes: String,
-		parents: { type: mongoose.Schema.Types.ObjectId, ref: "user" },
 		includeInAttendance: Boolean,
 		includeInScouting: Boolean,
 		resetPasswordOnNextLogin: Boolean,

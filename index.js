@@ -64,7 +64,7 @@ mongoose
 mongoose.promise = global.Promise;
 mongoose.set("returnOriginal", false);
 
-let socket = io("https://frc2641.aidanliddy.com");
+let socket = io("https://app.team2641.com");
 
 socket.on("connect", async () => {
 	let config = await Config.findOne({});
@@ -93,7 +93,7 @@ socket.on("sync", async () => {
 
 	for (let i of comps) {
 		const compData = await Scouting.find({ event: i });
-		await axios.post(`https://frc2641.aidanliddy.com/api/instance/${config.code}/sync`, compData);
+		await axios.post(`https://app.team2641.com/api/instance/${config.code}/sync`, compData);
 	}
 });
 

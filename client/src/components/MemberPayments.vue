@@ -19,8 +19,8 @@
             <tr>
               <th class="text-left">Title</th>
               <th class="text-left">Type</th>
-              <th class="text-left">Due</th>
               <th class="text-left">Value</th>
+              <th class="text-left">Due</th>
               <th class="text-left">Status</th>
             </tr>
           </thead>
@@ -37,8 +37,8 @@
             >
               <td class="font-weight-black">{{ payment.title }}</td>
               <td>{{ payment.type }}</td>
-              <td>{{ dayjs(payment.due).format("ddd, MMM D, YYYY") }}</td>
               <td>${{ payment.value }}</td>
+              <td>{{ dayjs(payment.due).format("ddd, MMM D, YYYY") }}</td>
               <td
                 :class="
                   getColor(
@@ -65,8 +65,8 @@
             >
               <td class="font-weight-black">{{ payment.title }}</td>
               <td>{{ payment.type }}</td>
-              <td>{{ payment.due }}</td>
               <td>${{ payment.value }}</td>
+              <td>{{ payment.due }}</td>
               <td :class="getColor(payment.members[member._id].status, true)">
                 {{ payment.members[member._id].status }}
               </td>
